@@ -52,7 +52,8 @@ SELECT developer.ename, developer.employeeid
 FROM developer, devassignments, project
 WHERE developer.employeeid=devassignments.employeeid
 AND devassignments.pname=project.pname
-AND project.ptype='external';
+AND project.ptype='external'
+ORDER BY employeeid;
 
 
 Q7
@@ -125,6 +126,50 @@ LEFT JOIN devassignments ON devassignments.pname=project.pname
 WHERE project.pstartdate=(SELECT MAX(project.pstartdate) FROM project) 
 GROUP BY project.pname
 ORDER BY project.pname;
+
+
+Q16
+
+SELECT DISTINCT developer.ename, developer.employeeid
+FROM developer, document, documentauthors
+WHERE developer.employeeid=documentauthors.employeeid
+AND documentauthors.documentid=document.documentid
+AND document.pname='Kodiak'
+UNION
+SELECT DISTINCT developer.ename, developer.employeeid
+FROM developer, devassignments
+WHERE developer.employeeid=devassignments.employeeid AND devassignments.pname='Kodiak'
+ORDER BY employeeid;
+
+Q17
+
+SELECT project.pname, project.budget
+FROM project
+WHERE budget>(SELECT AVG(budget)
+FROM (SELECT * FROM project WHERE project.ptype='internal') AS intproj)
+ORDER BY budget DESC, pname;
+
+Q18
+
+
+SELECT pname, devcost
+FROM (
+	SELECT project.pname, project.budget/count AS devcost
+	FROM project, (
+		SELECT devassignments.pname, COUNT(*)
+		FROM devassignments 
+		GROUP BY devassignments.pname) AS counter
+	WHERE counter.pname=project.pname) AS alldevcosts
+WHERE alldevcosts.devcost=(
+	SELECT MAX(devcost) FROM (
+		SELECT project.pname, project.budget/count AS devcost 
+		FROM project, (
+			SELECT devassignments.pname, COUNT(*)
+			FROM devassignments 
+			GROUP BY devassignments.pname) AS counter
+	WHERE counter.pname=project.pname) AS maxdevcost)
+
+ORDER BY pname;
 
 
 
