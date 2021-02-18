@@ -1,0 +1,132 @@
+MAKE SURE ALL ORDERING IS ASCENDING
+
+
+Q1
+
+SELECT project.pname, project.pstartdate
+FROM project
+WHERE project.ptype='internal'
+ORDER BY project.pname;
+
+Q2
+
+SELECT developer.employeeid, developer.ename
+FROM developer, documentauthors
+WHERE developer.employeeid=documentauthors.employeeid AND documentauthors.documentid=22
+ORDER BY developer.employeeid;
+
+Q3
+
+(SELECT developer.ename, developer.employeeid FROM developer, devassignments
+WHERE devassignments.employeeid=developer.employeeid AND devassignments.pname='Kodiak'
+INTERSECT
+SELECT developer.ename, developer.employeeid
+FROM developer, documentauthors, document
+WHERE developer.employeeid=documentauthors.employeeid AND documentauthors.documentid=document.documentid AND document.pname<>'Kodiak')
+ORDER BY employeeid;
+
+Q4
+
+SELECT project.pname, devassignments.employeeid, project.ptype
+FROM project, devassignments
+WHERE project.pname=devassignments.pname AND devassignments.employeeid=82102
+ORDER BY pname;
+
+
+Q5
+
+SELECT project.pname, project.pstartdate 
+FROM project 
+WHERE project.pstartdate >= '2020-05-01' AND project.pstartdate <= '2020-08-31'
+ORDER BY pstartdate, pname;
+
+Q6
+
+SELECT DISTINCT developer.ename, developer.employeeid
+FROM developer, devassignments, project
+WHERE developer.employeeid=devassignments.employeeid
+AND devassignments.pname=project.pname
+AND project.ptype='internal'
+EXCEPT
+SELECT developer.ename, developer.employeeid
+FROM developer, devassignments, project
+WHERE developer.employeeid=devassignments.employeeid
+AND devassignments.pname=project.pname
+AND project.ptype='external';
+
+
+Q7
+
+SELECT DISTINCT document.pname, documentauthors.employeeid
+FROM document, documentauthors
+WHERE document.documentid=documentauthors.documentid
+EXCEPT
+SELECT devassignments.pname, devassignments.employeeid
+FROM devassignments
+ORDER BY pname, employeeid;
+
+Q8
+
+SELECT DISTINCT document.pname
+FROM document, documentauthors
+WHERE document.documentid=documentauthors.documentid AND documentauthors.employeeid=93401
+ORDER BY pname;
+
+Q9
+
+SELECT COUNT (*) AS numprojects
+FROM project
+WHERE project.pstartdate>='2021-01-01' AND project.pstartdate<='2021-12-31';
+
+Q10
+
+SELECT COUNT (document.pname) AS numprojects
+FROM document, documentauthors
+WHERE document.documentid=documentauthors.documentid AND documentauthors.employeeid=93401;
+
+Q11
+
+SELECT devassignments.pname
+FROM devassignments
+GROUP BY pname
+HAVING COUNT (*)>2
+ORDER BY pname;
+
+Q12
+
+SELECT devassignments.pname
+FROM devassignments
+GROUP BY pname
+HAVING COUNT (*)<=2
+ORDER BY pname;
+
+Q13
+
+SELECT project.pname, COUNT (document.pname) AS "numdocs"
+FROM project
+LEFT JOIN document ON project.pname = document.pname WHERE project.ptype='internal'
+GROUP BY project.pname
+ORDER BY numdocs DESC;
+
+Q14
+
+SELECT pname, pstartdate
+FROM project
+WHERE pstartdate=(SELECT MIN(pstartdate) FROM project)
+ORDER BY pname;
+
+Q15
+
+
+
+SELECT project.pname, project.pstartdate, COUNT(devassignments.pname)
+FROM project
+LEFT JOIN devassignments ON devassignments.pname=project.pname
+WHERE project.pstartdate=(SELECT MAX(project.pstartdate) FROM project) 
+GROUP BY project.pname
+ORDER BY project.pname;
+
+
+
+
+
